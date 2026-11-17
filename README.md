@@ -1,61 +1,61 @@
+# Pametna utičnica – Modul 3 (novi interaktivni koncept)
 
-# Pametna utičnica – Modul 2
-
-Projekat iz predmeta **Implementacija automatskih sistema**.
+Master predmet: **Implementacija automatskih sistema**.
 
 ## Specifikacija
 
-- Nominalni napon: **220 V AC**.
-- Izbor limita aktivne snage: **300, 600 ili 900 W**.
-- Izbor trajanja rada: 1–86400 s (početna pretpostavka).
-- Automatski prekid napajanja kada mjerenje premaši limit.
-- Crvena LED i poruka pri prekoračenju ili neispravnom/nedostupnom mjerenju.
-- Zaštitno stanje TRIPPED ostaje aktivno do RESET komande.
-- Potpuno offline upravljačka logika.
-
-## Arhitektura
-
-- `backend/config.py` – fiksni projektni parametri.
-- `backend/hardware.py` – simulacija kontaktora i signalne LED.
-- `backend/controller.py` – automat stanja, zaštita i tajmer.
-- `backend/main.py` – terminalski scenariji.
-- `tests/test_controller.py` – automatizovana provjera.
-
-U stvarnom uređaju potrebni su ESP32 firmware, fizički mjerač snage,
-izolovano upravljanje kontaktorom, električna zaštita i ispitivanje. Python
-simulacija **nije** direktno upravljanje mrežnim naponom.
+- Nominalno 220 V AC; tri dozvoljene snage: **300 / 600 / 900 W**.
+- Korisnik bira trajanje, START / STOP / RESET.
+- Simulirani potrošač ručno zahtijeva od **0 do 2000 W**.
+- Prekoračenje: `TRIPPED`, otvoren izlaz, crvena LED, poruka na displeju.
+- Bez unaprijed pokrenutih demonstracionih scenarija.
+- Sistem i svi podaci rade **offline**.
 
 ## Pokretanje
 
-Iz korijenskog foldera projekta:
+Potrebna je Python 3.11+ instalacija. Nema dodatnih paketa.
 
 ```powershell
 python -m unittest discover -s tests -v
+python -m backend.web_server
+```
+
+U browseru otvori **http://127.0.0.1:8765**.
+
+Na tabu **Pametna utičnica** izaberi limit (300/600/900 W), trajanje
+u sekundama i klikni UKLJUČI. Na tabu **Električni potrošač** klizačem
+mijenjaj traženu snagu od 0 do 2000 W. Pri prekoračenju kontroler
+isključuje izlaz, pali crvenu LED i prikazuje grešku. Nakon otklanjanja
+uzroka klikni RESET pa UKLJUČI.
+
+Terminal i dalje mogu poslužiti za staru demonstraciju Modula 2:
+
+```powershell
 python -m backend.main
 ```
 
-Pojedinačni scenariji:
+## Struktura
 
-```powershell
-python -m backend.main --scenario overload
-python -m backend.main --scenario timer
-python -m backend.main --scenario watchdog
-python -m backend.main --scenario stop
-python -m backend.main --scenario custom --limit 900 --duration 3 --load 850
-python -m backend.main --scenario custom --limit 300 --duration 5 --load 400
-```
+- `backend/controller.py` – postojeći automat stanja iz Modula 2 (**ne mijenja se**).
+- `backend/simulation_service.py` – virtuelni mjerni sklop i potrošač.
+- `backend/web_server.py` – lokalni HTTP server samo na `127.0.0.1`.
+- `frontend/index.html` – dva taba.
+- `frontend/style.css` – izgled utičnice i uređaja.
+- `frontend/app.js` – slanje korisničkih komandi i osvježavanje stanja.
+- `tests/test_ui_service.py` – dodatni testovi.
+- `documentation/ARHITEKTURA.md` – stvarni princip rada i ograničenja.
 
-## Stanja
+### Bez interneta
 
-- `IDLE` – izlaz isključen, čeka korisnika.
-- `RUNNING` – izlaz uključen, vrši se mjerenje i odbrojavanje.
-- `TRIPPED` – izlaz isključen zbog prekoračenja ili greške mjerenja; LED ON.
-- `FINISHED` – izlaz isključen zbog isteka trajanja.
+Browser i Python razmjenjuju podatke preko **loopback** adrese `127.0.0.1`
+na istom računaru, a ne preko javnog interneta. Stvarna verzija uređaja
+neće koristiti ovaj server: ESP32-S3 samostalno upravlja mjerenjem,
+kontaktorom i lokalnim HMI-jem putem žične komunikacije.
 
-## Ograničenje Modula 2
+## Ograničenja trenutne simulacije
 
-Model pretpostavlja da `tick()` radi periodično i da je izmjerena snaga
-pravovremena i tačna. Prag nedostupnosti mjerenja od 1 s je početna
-simulaciona vrijednost, a ne validiran bezbjednosni parametar stvarne
-utičnice. U fizičkom uređaju detekcija greške zavisi od odziva senzora,
-firmware-a, drajvera i kontaktora, a sam uređaj zahtijeva zasebnu zaštitu.
+- Opterećenje je za sada idealizovano, otporno: cos φ = 1.
+- Simulacija detektuje prekoračenje u narednom softverskom očitavanju.
+- Stvaran fizički prekidač, senzori, izolacija i reakcijsko vrijeme tek
+  treba da budu projektovani, modelovani i ispitani.
+- Prikaz ne predstavlja fizički bezbjedan uređaj spreman za mrežnu upotrebu.

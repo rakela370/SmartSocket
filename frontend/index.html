@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pametna utičnica | Offline laboratorija</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brandmark">ϟ</span><div><strong>VOLT<span>LAB</span></strong><small>PAMETNA UTIČNICA · SIMULATOR</small></div></div>
+      <div class="offline"><span class="status-dot"></span> OFFLINE · LOKALNI SISTEM</div>
+    </header>
+
+    <div class="headline"><div><div class="eyebrow">KONTROLNI CENTAR / MODUL 3</div><h1>Pametna utičnica</h1><p>Upravljanje izlazom i simulacija opterećenja u realnom vremenu.</p></div><div class="top-status" id="top-status">SPREMNA</div></div>
+
+    <nav class="tabs" aria-label="Ekrani simulatora">
+      <button id="tab-socket" class="tab active" role="tab" aria-selected="true" aria-controls="panel-socket">▣ &nbsp; Pametna utičnica</button>
+      <button id="tab-load" class="tab" role="tab" aria-selected="false" aria-controls="panel-load">▤ &nbsp; Električni potrošač</button>
+    </nav>
+
+    <main>
+      <section id="panel-socket" class="panel" role="tabpanel" aria-labelledby="tab-socket">
+        <div class="two-columns">
+          <article class="card socket-showcase">
+            <div class="card-head"><span>01 / IZLAZNI MODUL</span><span class="tiny-chip">220 V ~ 50 Hz</span></div>
+            <div class="socket-frame">
+              <div class="smart-socket">
+                <div class="socket-screen"><small>SMART SOCKET · POWER LIMIT</small><div id="device-display" class="screen-main">300 <span>W</span></div><div id="device-message" class="screen-message">SPREMNO · IZLAZ ISKLJUČEN</div></div>
+                <div class="indicator"><span id="error-lamp" class="lamp"></span><div><strong>GREŠKA</strong><small>Prekoračenje dozvoljene snage</small></div></div>
+                <div class="outlet"><div class="outlet-inner"><span class="hole left"></span><span class="hole right"></span><span class="ground"></span></div></div>
+                <div class="engraving">SMART AC OUTLET · 220V</div>
+              </div>
+            </div>
+            <div class="connection"><span id="power-dot" class="status-dot gray"></span><strong id="relay-text">KONTAKTOR: ISKLJUČEN</strong><span id="state-name" class="pill">IDLE</span></div>
+          </article>
+
+          <article class="card control-card">
+            <div class="card-head"><span>02 / UPRAVLJANJE</span><span class="tiny-chip">LOKALNI HMI</span></div>
+            <h2>Dozvoljena snaga</h2><p class="helper">Izaberi maksimalnu aktivnu snagu na izlazu.</p>
+            <div class="power-options" role="group" aria-label="Limit snage">
+              <button class="power-choice selected" data-limit="300">300 <span>W</span></button>
+              <button class="power-choice" data-limit="600">600 <span>W</span></button>
+              <button class="power-choice" data-limit="900">900 <span>W</span></button>
+            </div>
+            <div class="separator"></div>
+            <label for="duration" class="field-label">Trajanje rada <small>(u sekundama)</small></label>
+            <div class="duration-row"><input id="duration" type="number" min="1" max="86400" step="1" value="60"><button id="duration-set" class="secondary">POSTAVI</button></div>
+            <div class="separator"></div>
+            <div class="runtime"><div><small>PREOSTALO VRIJEME</small><strong id="remaining">01:00</strong></div><div><small>IZMJERENA SNAGA</small><strong id="measured">— W</strong></div></div>
+            <div class="runtime"><div><small>STVARNO ISPORUČENO</small><strong id="delivered">0 W</strong></div><div><small>UTROŠENA ENERGIJA</small><strong id="energy">0.000 Wh</strong></div></div>
+            <div class="actions"><button id="start-btn" class="primary">▶ &nbsp; UKLJUČI</button><button id="stop-btn" class="secondary">■ &nbsp; ISKLJUČI</button><button id="reset-btn" class="secondary">↺ &nbsp; RESET</button></div>
+            <div id="alert" class="alert" role="status" aria-live="polite">Podesi limit i vrijeme, zatim uključi utičnicu.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="panel-load" class="panel" role="tabpanel" aria-labelledby="tab-load" hidden>
+        <div class="two-columns">
+          <article class="card load-showcase">
+            <div class="card-head"><span>03 / VIRTUELNI POTROŠAČ</span><span class="tiny-chip">OTPORNI MODEL · cos φ = 1</span></div>
+            <div class="appliance"><div class="appliance-top"><span>LAB POWER LOAD</span><span class="appliance-led" id="load-lamp"></span></div><div class="appliance-display"><small>ZAHTIJEVANA SNAGA</small><strong id="load-display">0<span> W</span></strong></div><div class="appliance-slots"><i></i><i></i><i></i><i></i><i></i></div><div class="appliance-foot">SIMULIRANI ELEKTRIČNI POTROŠAČ</div></div>
+            <div class="connection"><span id="load-status-dot" class="status-dot gray"></span><strong id="load-status">POTROŠAČ NIJE NAPAJAN</strong></div>
+          </article>
+          <article class="card control-card">
+            <div class="card-head"><span>04 / PODEŠAVANJE OPTEREĆENJA</span><span class="tiny-chip">0 — 2000 W</span></div>
+            <h2>Zahtjevana snaga uređaja</h2><p class="helper">Pomjeri klizač. Ovo je nezavisan zahtjev potrošača, a ne limit utičnice.</p>
+            <div class="large-number"><strong id="requested">0</strong><span>W</span></div>
+            <input id="load-slider" type="range" min="0" max="2000" step="10" value="0" aria-label="Zahtjevana snaga potrošača">
+            <div class="scale"><span>0 W</span><span>1000 W</span><span>2000 W</span></div>
+            <div class="separator"></div>
+            <div class="runtime"><div><small>IZABRANI LIMIT UTIČNICE</small><strong id="load-limit">300 W</strong></div><div><small>SIMULIRANA STRUJA*</small><strong id="current">0.00 A</strong></div></div>
+            <div id="load-note" class="alert">Potrošač ne dobija energiju dok je utičnica isključena.</div>
+            <p class="footnote">* Proračun za 220 V i otporni potrošač (cos φ = 1). Prikazana struja je isporučena, ne zahtijevana.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer>IMPLEMENTACIJA AUTOMATSKIH SISTEMA <span>SIMULACIJA · BEZ POVEZIVANJA NA MREŽNI NAPON</span></footer>
+  </div>
+</body>
+</html>
